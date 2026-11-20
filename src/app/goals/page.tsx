@@ -56,7 +56,7 @@ export default function GoalsPage() {
           <div className="mb-4 grid grid-cols-3 gap-2 sm:gap-3">
             <Stat label="Saved so far" value={formatINR(saved)} tone="text-income" />
             <Stat label="Total target" value={formatINR(target)} />
-            <Stat label="Save per month" value={formatINR(monthly)} />
+            <Stat label="Per month" value={formatINR(monthly)} />
           </div>
 
           <div className="grid gap-3 lg:grid-cols-2 2xl:grid-cols-3">

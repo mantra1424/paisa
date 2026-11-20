@@ -2,6 +2,15 @@
 
 A private personal-finance dashboard for students and freelancers in India. Track spending, monthly budgets and savings goals in ₹. All data stays in your browser (IndexedDB): no sign-up, no backend, no API keys, nothing paid.
 
+<p>
+  <img src="docs/screenshots/dashboard-light.png" alt="Dashboard in light mode: monthly income, spending, savings rate, a six-month bar chart and a category donut" width="100%">
+</p>
+
+| Dark mode | Phone |
+|---|---|
+| <img src="docs/screenshots/budgets-dark.png" alt="Budgets page in dark mode with progress bars and an over-budget alert"> | <img src="docs/screenshots/mobile-dashboard.png" alt="Dashboard on a phone with the bottom tab bar" width="260"> |
+| <img src="docs/screenshots/clients.png" alt="Clients and invoices page with owed, overdue and paid totals"> | <img src="docs/screenshots/mobile-goals-dark.png" alt="Savings goals on a phone in dark mode with progress rings" width="260"> |
+
 ## Run it
 
 ```bash
@@ -47,6 +56,17 @@ Production build: `npm run build && npm start`.
 - Export transactions to CSV and import from CSV
 - Load demo data or reset everything
 
+## Tests
+
+```bash
+npm test            # unit tests (Vitest): money calculations, invoices, CSV
+npm run test:e2e    # end-to-end tests (Playwright)
+```
+
+The end-to-end suite covers the main flows (transactions, budgets, goals, invoices, CSV export, currency format, keyboard use). It also loads every page at 375, 768 and 1280px to check for sideways scrolling and placeholders, and runs axe-core WCAG 2 AA checks in light and dark mode. The first run needs `npx playwright install chromium`.
+
+GitHub Actions runs lint, type-check, unit tests, the production build and the end-to-end suite on every push.
+
 ## CSV format
 
 ```csv
@@ -59,22 +79,31 @@ date,type,amount,category,method,note
 - Unknown categories are created on import; `method` defaults to `upi`
 - Invalid rows are skipped and reported with their line number
 
+## Deploy (free)
+
+It's a static Next.js app with no server code or environment variables, so any static host works. On [Vercel](https://vercel.com): import the GitHub repo and keep the defaults. Each visitor's data still stays in their own browser.
+
 ## Tech
 
 - Next.js 15 (App Router) + TypeScript
 - Tailwind CSS 4, light and dark themes
 - Dexie.js on IndexedDB for local storage
 - Recharts, React Hook Form + Zod, lucide-react
+- Vitest, Playwright, axe-core
 
 ## Project structure
 
 ```
 src/
-  app/          pages: dashboard, transactions, budgets, goals, settings
+  app/          pages: dashboard, transactions, budgets, goals, clients, settings
   components/   ui.tsx (Button, Modal, Field…), layout/, charts, forms
   hooks/        live queries for categories and transactions
   lib/          db.ts (Dexie), calculations.ts, csv.ts, theme.ts, format.ts, demo-data.ts
   types/        shared TypeScript types
+tests/
+  unit/         Vitest
+  e2e/          Playwright flows, layout and accessibility checks
+scripts/        screenshots.mjs regenerates the README images
 ```
 
 ## Roadmap
@@ -87,4 +116,5 @@ src/
 - [x] Dashboard charts
 - [ ] Recurring transactions (rent, subscriptions, SIPs)
 - [x] Freelance clients and invoices
-- [x] Tests (Vitest + Playwright) and an accessibility pass
+- [x] Tests (Vitest + Playwright), CI and an accessibility pass
+- [ ] Live demo on Vercel
