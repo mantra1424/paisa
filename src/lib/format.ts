@@ -1,7 +1,8 @@
 const inr = new Intl.NumberFormat("en-IN", {
   style: "currency",
   currency: "INR",
-  maximumFractionDigits: 0,
+  minimumFractionDigits: 0,
+  maximumFractionDigits: 2,
 });
 
 /** 125000 -> "₹1,25,000" (Indian digit grouping) */
