@@ -96,3 +96,11 @@ export async function loadDemoData(): Promise<void> {
     await db.goals.bulkAdd(data.goals);
   });
 }
+
+/** Wipe every transaction, budget and goal, and go back to the default categories. */
+export async function resetAllData(): Promise<void> {
+  await db.transaction("rw", [db.transactions, db.categories, db.budgets, db.goals], async () => {
+    await Promise.all([db.transactions.clear(), db.categories.clear(), db.budgets.clear(), db.goals.clear()]);
+    await db.categories.bulkAdd(DEFAULT_CATEGORIES);
+  });
+}
