@@ -2,8 +2,8 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Wallet } from "lucide-react";
-import { NAV_ITEMS } from "./nav-items";
+import { Settings, Wallet } from "lucide-react";
+import { MOBILE_TABS, NAV_ITEMS } from "./nav-items";
 import { ThemeToggle } from "./theme-toggle";
 
 function isActive(pathname: string, href: string) {
@@ -59,7 +59,19 @@ export function AppShell({ children }: { children: React.ReactNode }) {
             </span>
             Paisa
           </Link>
-          <ThemeToggle />
+          <div className="flex items-center gap-2">
+            <Link
+              href="/settings"
+              aria-label="Settings"
+              aria-current={isActive(pathname, "/settings") ? "page" : undefined}
+              className={`inline-flex h-10 w-10 items-center justify-center rounded-lg border border-border bg-surface focus-visible:outline-2 focus-visible:outline-brand ${
+                isActive(pathname, "/settings") ? "text-brand" : "text-ink-2 hover:text-ink"
+              }`}
+            >
+              <Settings size={18} />
+            </Link>
+            <ThemeToggle />
+          </div>
         </header>
 
         <main id="main" tabIndex={-1} className="mx-auto w-full max-w-6xl outline-none flex-1 px-4 pb-24 pt-6 md:px-8 md:pb-10 md:pt-8">{children}</main>
@@ -69,7 +81,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
           aria-label="Main"
           className="fixed inset-x-0 bottom-0 z-10 grid grid-cols-5 border-t border-border bg-surface pb-[env(safe-area-inset-bottom)] md:hidden"
         >
-          {NAV_ITEMS.map(({ href, label, icon: Icon }) => {
+          {MOBILE_TABS.map(({ href, label, icon: Icon }) => {
             const active = isActive(pathname, href);
             return (
               <Link

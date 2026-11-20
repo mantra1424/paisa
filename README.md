@@ -36,8 +36,13 @@ Production build: `npm run build && npm start`.
 - Target amount and date, progress ring, and how much to save each month
 - Add money to a goal or withdraw from it; reached and overdue states
 
+**Clients & invoices**
+- Add clients, raise numbered invoices with issue and due dates
+- Pending, overdue and paid states; totals for money owed, overdue and paid this month
+- Marking an invoice paid adds the income to Transactions; marking it unpaid removes it
+
 **Settings**
-- Light, dark or system theme
+- Light, dark or system theme; Indian or international digit grouping, paise or rounded
 - Add, rename, recolour and delete categories (deleting moves transactions to another category)
 - Export transactions to CSV and import from CSV
 - Load demo data or reset everything
@@ -81,5 +86,5 @@ src/
 - [x] Settings: theme, categories, CSV import/export, reset
 - [x] Dashboard charts
 - [ ] Recurring transactions (rent, subscriptions, SIPs)
-- [ ] Freelance clients and invoices
-- [ ] Tests (Vitest + Playwright)
+- [x] Freelance clients and invoices
+- [x] Tests (Vitest + Playwright) and an accessibility pass

@@ -6,6 +6,7 @@ const pages = [
   { path: "/transactions", heading: "Transactions" },
   { path: "/budgets", heading: "Budgets" },
   { path: "/goals", heading: "Savings goals" },
+  { path: "/clients", heading: "Clients & invoices" },
   { path: "/settings", heading: "Settings" },
 ];
 

@@ -1,4 +1,4 @@
-import type { Goal, Transaction } from "@/types";
+import type { Goal, Invoice, Transaction } from "@/types";
 import { toISODate } from "./format";
 
 /** "2026-11-19" or a Date -> "2026-11" */
@@ -66,4 +66,35 @@ export function goalInfo(goal: Goal, today = new Date()) {
   const status: GoalStatus = remaining === 0 ? "done" : left === 0 ? "overdue" : "active";
   const perMonth = status === "active" ? Math.ceil(remaining / left) : remaining;
   return { remaining, pct, monthsLeft: left, status, perMonth };
+}
+
+export type InvoiceStatus = "paid" | "overdue" | "pending";
+
+/** Unpaid invoices become overdue the day after their due date. */
+export function invoiceStatus(inv: Invoice, today = new Date()): InvoiceStatus {
+  if (inv.paidOn) return "paid";
+  return inv.due < toISODate(today) ? "overdue" : "pending";
+}
+
+/** "INV-0009" after the highest existing number. */
+export function nextInvoiceNumber(invoices: Invoice[]): string {
+  const max = invoices.reduce((m, i) => Math.max(m, Number(/(\d+)$/.exec(i.number)?.[1] ?? 0)), 0);
+  return `INV-${String(max + 1).padStart(4, "0")}`;
+}
+
+export function invoiceTotals(invoices: Invoice[], today = new Date()) {
+  const month = monthKey(today);
+  let owed = 0;
+  let overdue = 0;
+  let paidThisMonth = 0;
+  for (const inv of invoices) {
+    const status = invoiceStatus(inv, today);
+    if (status === "paid") {
+      if (inv.paidOn?.startsWith(month)) paidThisMonth += inv.amount;
+    } else {
+      owed += inv.amount;
+      if (status === "overdue") overdue += inv.amount;
+    }
+  }
+  return { owed, overdue, paidThisMonth };
 }

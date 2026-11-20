@@ -1,6 +1,6 @@
-import { db, newId } from "./db";
+import { allTables, db, newId } from "./db";
 import { toISODate } from "./format";
-import type { Budget, Category, Goal, PaymentMethod, Transaction } from "@/types";
+import type { Budget, Category, Client, Goal, Invoice, PaymentMethod, Transaction } from "@/types";
 
 export const DEFAULT_CATEGORIES: Category[] = [
   { id: "salary", name: "Stipend / Salary", type: "income", color: "#1baf7a" },
@@ -76,7 +76,35 @@ export function buildDemoData(today = new Date()) {
     { id: newId(), name: "Emergency fund", target: 25000, saved: 9000, deadline: toISODate(new Date(today.getFullYear(), today.getMonth() + 8, 1)) },
   ];
 
-  return { transactions: tx, categories: DEFAULT_CATEGORIES, budgets, goals };
+  // Freelance clients: every past freelance payment becomes a paid invoice.
+  const clients: Client[] = [
+    { id: newId(), name: "Sharma Sweets", contact: "orders@sharmasweets.in" },
+    { id: newId(), name: "Pixel Yoga Studio", contact: "+91 98250 11223" },
+    { id: newId(), name: "Ahmedabad Startup Club", contact: "hello@asc.org.in" },
+  ];
+  const work = ["Website redesign", "Instagram post designs", "Landing page", "Logo and brand kit", "Booking form fixes"];
+  const shift = (iso: string, days: number) => {
+    const [y, m, d] = iso.split("-").map(Number);
+    return toISODate(new Date(y, m - 1, d + days));
+  };
+  const invoices: Invoice[] = [];
+  const freelance = tx.filter((t) => t.categoryId === "freelance").sort((a, b) => a.date.localeCompare(b.date));
+  freelance.forEach((t, i) => {
+    const client = clients[i % clients.length];
+    const number = `INV-${String(i + 1).padStart(4, "0")}`;
+    const description = work[i % work.length];
+    t.note = `${number} · ${client.name}`;
+    const issued = shift(t.date, -12);
+    invoices.push({ id: newId(), clientId: client.id, number, description, amount: t.amount, issued, due: shift(issued, 15), paidOn: t.date, transactionId: t.id });
+  });
+  const todayISO = toISODate(today);
+  const n = freelance.length;
+  invoices.push(
+    { id: newId(), clientId: clients[0].id, number: `INV-${String(n + 1).padStart(4, "0")}`, description: "Diwali offer banners", amount: 6500, issued: shift(todayISO, -25), due: shift(todayISO, -10) },
+    { id: newId(), clientId: clients[1].id, number: `INV-${String(n + 2).padStart(4, "0")}`, description: "Class schedule page", amount: 9000, issued: shift(todayISO, -3), due: shift(todayISO, 12) },
+  );
+
+  return { transactions: tx, categories: DEFAULT_CATEGORIES, budgets, goals, clients, invoices };
 }
 
 /** Fill the database with demo data the first time the app opens. */
@@ -88,19 +116,21 @@ export async function seedIfEmpty(): Promise<void> {
 /** Replace everything with fresh demo data. */
 export async function loadDemoData(): Promise<void> {
   const data = buildDemoData();
-  await db.transaction("rw", [db.transactions, db.categories, db.budgets, db.goals], async () => {
-    await Promise.all([db.transactions.clear(), db.categories.clear(), db.budgets.clear(), db.goals.clear()]);
+  await db.transaction("rw", allTables(), async () => {
+    await Promise.all(allTables().map((t) => t.clear()));
     await db.categories.bulkAdd(data.categories);
     await db.transactions.bulkAdd(data.transactions);
     await db.budgets.bulkAdd(data.budgets);
     await db.goals.bulkAdd(data.goals);
+    await db.clients.bulkAdd(data.clients);
+    await db.invoices.bulkAdd(data.invoices);
   });
 }
 
-/** Wipe every transaction, budget and goal, and go back to the default categories. */
+/** Wipe every transaction, budget, goal, client and invoice, and go back to the default categories. */
 export async function resetAllData(): Promise<void> {
-  await db.transaction("rw", [db.transactions, db.categories, db.budgets, db.goals], async () => {
-    await Promise.all([db.transactions.clear(), db.categories.clear(), db.budgets.clear(), db.goals.clear()]);
+  await db.transaction("rw", allTables(), async () => {
+    await Promise.all(allTables().map((t) => t.clear()));
     await db.categories.bulkAdd(DEFAULT_CATEGORIES);
   });
 }

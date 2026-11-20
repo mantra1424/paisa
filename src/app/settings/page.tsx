@@ -160,6 +160,7 @@ function DataSection() {
     transactions: await db.transactions.count(),
     budgets: await db.budgets.count(),
     goals: await db.goals.count(),
+    invoices: await db.invoices.count(),
   }));
   const categories = useCategories();
   const catMap = useCategoryMap(categories);
@@ -202,7 +203,7 @@ function DataSection() {
     <Section title="Your data" text="Everything is stored only in this browser. Export a CSV to back it up or move it to another device.">
       {counts && (
         <p className="mb-4 text-sm text-ink-2">
-          {counts.transactions} transactions · {counts.budgets} budgets · {counts.goals} goals
+          {counts.transactions} transactions · {counts.budgets} budgets · {counts.goals} goals · {counts.invoices} invoices
         </p>
       )}
       <div className="grid gap-2 sm:grid-cols-2">
@@ -237,7 +238,7 @@ function DataSection() {
       <ConfirmDialog
         open={confirm === "demo"}
         title="Load demo data?"
-        message="This replaces everything on this device with six months of sample transactions, budgets and goals."
+        message="This replaces everything on this device with six months of sample transactions, budgets, goals, clients and invoices."
         confirmLabel="Replace with demo data"
         onConfirm={async () => {
           await loadDemoData();
@@ -248,7 +249,7 @@ function DataSection() {
       <ConfirmDialog
         open={confirm === "reset"}
         title="Reset all data?"
-        message="Every transaction, budget and goal on this device will be deleted, and categories go back to the defaults. Export a CSV first if you want a backup. This can't be undone."
+        message="Every transaction, budget, goal, client and invoice on this device will be deleted, and categories go back to the defaults. Export a CSV first if you want a backup. This can't be undone."
         confirmLabel="Delete everything"
         onConfirm={async () => {
           await resetAllData();

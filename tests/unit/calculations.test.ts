@@ -1,7 +1,7 @@
 import { afterEach, describe, expect, it } from "vitest";
-import { budgetLevel, goalInfo, monthKey, monthLabel, monthsLeft, shiftMonth, spendByCategory, totals } from "@/lib/calculations";
+import { budgetLevel, goalInfo, invoiceStatus, invoiceTotals, monthKey, monthLabel, monthsLeft, nextInvoiceNumber, shiftMonth, spendByCategory, totals } from "@/lib/calculations";
 import { DEFAULT_CURRENCY, formatINR, setCurrencyPrefs } from "@/lib/format";
-import type { Goal, Transaction } from "@/types";
+import type { Goal, Invoice, Transaction } from "@/types";
 
 const tx = (over: Partial<Transaction>): Transaction => ({
   id: Math.random().toString(36),
@@ -114,5 +114,43 @@ describe("formatINR", () => {
     setCurrencyPrefs({ grouping: "indian", paise: false }, false);
     expect(formatINR(249.5)).toBe("₹250");
     expect(formatINR(125000.25)).toBe("₹1,25,000");
+  });
+});
+
+describe("invoices", () => {
+  const today = new Date(2026, 10, 20);
+  const inv = (over: Partial<Invoice>): Invoice => ({
+    id: Math.random().toString(36),
+    clientId: "c",
+    number: "INV-0001",
+    description: "Work",
+    amount: 1000,
+    issued: "2026-11-01",
+    due: "2026-11-20",
+    ...over,
+  });
+
+  it("is pending until the day after it's due, then overdue", () => {
+    expect(invoiceStatus(inv({ due: "2026-11-20" }), today)).toBe("pending");
+    expect(invoiceStatus(inv({ due: "2026-11-19" }), today)).toBe("overdue");
+    expect(invoiceStatus(inv({ due: "2026-11-01", paidOn: "2026-11-05" }), today)).toBe("paid");
+  });
+
+  it("numbers invoices after the highest existing one", () => {
+    expect(nextInvoiceNumber([])).toBe("INV-0001");
+    expect(nextInvoiceNumber([inv({ number: "INV-0002" }), inv({ number: "INV-0009" }), inv({ number: "custom" })])).toBe("INV-0010");
+  });
+
+  it("totals what is owed, overdue and paid this month", () => {
+    const t = invoiceTotals(
+      [
+        inv({ amount: 6500, due: "2026-11-10" }),
+        inv({ amount: 9000, due: "2026-12-02" }),
+        inv({ amount: 5500, paidOn: "2026-11-05" }),
+        inv({ amount: 4000, paidOn: "2026-10-28" }),
+      ],
+      today,
+    );
+    expect(t).toEqual({ owed: 15500, overdue: 6500, paidThisMonth: 5500 });
   });
 });

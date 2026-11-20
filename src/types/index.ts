@@ -37,3 +37,26 @@ export interface Goal {
   /** ISO date, YYYY-MM-DD */
   deadline: string;
 }
+
+export interface Client {
+  id: string;
+  name: string;
+  /** Email, phone or anything that helps you reach them. Optional. */
+  contact: string;
+}
+
+export interface Invoice {
+  id: string;
+  clientId: string;
+  /** e.g. "INV-0007" */
+  number: string;
+  description: string;
+  amount: number;
+  /** ISO dates, YYYY-MM-DD */
+  issued: string;
+  due: string;
+  /** Set once the client pays. */
+  paidOn?: string;
+  /** The income transaction created when it was marked paid. */
+  transactionId?: string;
+}

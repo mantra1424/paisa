@@ -6,7 +6,7 @@ import { useLiveQuery } from "dexie-react-hooks";
 import { ArrowRight, PieChart as PieIcon, Plus } from "lucide-react";
 import { db } from "@/lib/db";
 import { formatDate, formatINR } from "@/lib/format";
-import { budgetLevel, goalInfo, monthKey, monthLabel, shiftMonth, spendByCategory, totals } from "@/lib/calculations";
+import { budgetLevel, goalInfo, invoiceTotals, monthKey, monthLabel, shiftMonth, spendByCategory, totals } from "@/lib/calculations";
 import { useCategories, useCategoryMap, useTransactions } from "@/hooks/use-data";
 import { PageHeader } from "@/components/page-header";
 import { CategoryDonut, MonthlyBars } from "@/components/dashboard-charts";
@@ -19,6 +19,7 @@ export default function DashboardPage() {
   const catMap = useCategoryMap(categories);
   const budgets = useLiveQuery(() => db.budgets.where("month").equals(monthKey()).toArray());
   const goals = useLiveQuery(() => db.goals.toArray());
+  const invoices = useLiveQuery(() => db.invoices.toArray());
   const [adding, setAdding] = useState(false);
 
   const month = monthKey();
@@ -37,7 +38,7 @@ export default function DashboardPage() {
     return { now, months, spend, byCategory, recent };
   }, [transactions, catMap, month]);
 
-  if (!transactions || !categories || !budgets || !goals) return <p className="text-sm text-muted">Loading…</p>;
+  if (!transactions || !categories || !budgets || !goals || !invoices) return <p className="text-sm text-muted">Loading…</p>;
 
   const { now, months, spend, byCategory, recent } = data;
   const rate = now.income > 0 ? Math.round((now.net / now.income) * 100) : null;
@@ -52,6 +53,8 @@ export default function DashboardPage() {
     .sort((x, y) => y.spent / y.b.limit - x.spent / x.b.limit)
     .slice(0, 4);
   const activeGoals = goals.filter((g) => goalInfo(g).status !== "done").slice(0, 3);
+  const owed = invoiceTotals(invoices);
+  const unpaid = invoices.filter((i) => !i.paidOn).length;
 
   return (
     <>
@@ -125,6 +128,20 @@ export default function DashboardPage() {
         </Card>
 
         <div className="min-w-0 space-y-4 lg:col-span-2">
+          {invoices.length > 0 && (
+            <Card className="p-4">
+              <div className="mb-2 flex items-center justify-between">
+                <h2 className="font-semibold">Owed to you</h2>
+                <SeeAll href="/clients" />
+              </div>
+              <p className="text-2xl font-bold tabular-nums">{formatINR(owed.owed)}</p>
+              <p className="mt-1 text-sm text-ink-2">
+                {unpaid} unpaid {unpaid === 1 ? "invoice" : "invoices"}
+                {owed.overdue > 0 && <span className="font-semibold text-danger"> · {formatINR(owed.overdue)} overdue</span>}
+              </p>
+            </Card>
+          )}
+
           <Card className="p-4">
             <div className="mb-3 flex items-center justify-between">
               <h2 className="font-semibold">Budgets</h2>

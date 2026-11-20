@@ -126,3 +126,43 @@ test("currency format changes how every amount is shown", async ({ page }) => {
   await page.getByRole("searchbox").fill("E2E big payment");
   await expect(page.getByRole("listitem").filter({ hasText: "E2E big payment" })).toContainText("+₹150,000");
 });
+
+test("invoice a client, mark it paid, and see the income", async ({ page }) => {
+  await open(page, "/clients", "Clients & invoices");
+
+  await page.getByRole("button", { name: "Add client" }).click();
+  const dialog = page.getByRole("dialog");
+  await dialog.getByLabel("Client name").fill("E2E Cafe");
+  await dialog.getByRole("button", { name: "Add client" }).click();
+  await expect(page.getByRole("listitem").filter({ hasText: "E2E Cafe" })).toBeVisible();
+
+  await page.getByRole("button", { name: "New invoice" }).click();
+  await dialog.getByLabel("Client").selectOption({ label: "E2E Cafe" });
+  await dialog.getByLabel("What it's for").fill("Menu card design");
+  await dialog.getByLabel("Amount (₹)").fill("4200");
+  await dialog.getByRole("button", { name: "Create invoice" }).click();
+
+  const row = page.getByRole("listitem").filter({ hasText: "Menu card design" });
+  await expect(row).toContainText(/pending/i);
+  await expect(row).toContainText("₹4,200");
+  const number = /INV-\d{4}/.exec((await row.textContent()) ?? "")?.[0] ?? "";
+
+  await row.getByRole("button", { name: `Mark ${number} paid` }).click();
+  await dialog.getByRole("button", { name: "Mark paid" }).click();
+  await page.getByRole("tab", { name: /^paid/i }).click();
+  await expect(page.getByRole("listitem").filter({ hasText: "Menu card design" })).toContainText(/paid \d/i);
+
+  // The payment shows up as income in Transactions.
+  await page.getByRole("link", { name: "Transactions" }).filter({ visible: true }).click();
+  await page.getByRole("searchbox").fill(number);
+  await expect(page.getByRole("listitem").filter({ hasText: `${number} · E2E Cafe` })).toContainText("+₹4,200");
+
+  // Marking it unpaid again removes that income.
+  await page.getByRole("link", { name: "Clients" }).filter({ visible: true }).click();
+  await page.getByRole("tab", { name: /^paid/i }).click();
+  await page.getByRole("button", { name: `Mark ${number} unpaid` }).click();
+  await page.getByRole("dialog").getByRole("button", { name: "Mark unpaid" }).click();
+  await page.getByRole("link", { name: "Transactions" }).filter({ visible: true }).click();
+  await page.getByRole("searchbox").fill(number);
+  await expect(page.getByText("Nothing matches these filters")).toBeVisible();
+});

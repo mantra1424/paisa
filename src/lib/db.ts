@@ -1,5 +1,5 @@
 import Dexie, { type EntityTable } from "dexie";
-import type { Budget, Category, Goal, Transaction } from "@/types";
+import type { Budget, Category, Client, Goal, Invoice, Transaction } from "@/types";
 
 /**
  * All data lives in the browser (IndexedDB), so the app needs no backend,
@@ -10,6 +10,8 @@ export const db = new Dexie("paisa") as Dexie & {
   categories: EntityTable<Category, "id">;
   budgets: EntityTable<Budget, "id">;
   goals: EntityTable<Goal, "id">;
+  clients: EntityTable<Client, "id">;
+  invoices: EntityTable<Invoice, "id">;
 };
 
 db.version(1).stores({
@@ -18,5 +20,14 @@ db.version(1).stores({
   budgets: "id, categoryId, month",
   goals: "id, deadline",
 });
+
+// v2: freelance clients and invoices.
+db.version(2).stores({
+  clients: "id, name",
+  invoices: "id, clientId, due, paidOn",
+});
+
+/** Every table, for actions that touch all data (demo load, reset). */
+export const allTables = () => [db.transactions, db.categories, db.budgets, db.goals, db.clients, db.invoices];
 
 export { newId } from "./id";
