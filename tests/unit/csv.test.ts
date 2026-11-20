@@ -40,7 +40,8 @@ describe("export then import", () => {
     const result = importTransactions(csv, cats);
     expect(result.skipped).toEqual([]);
     expect(result.newCategories).toEqual([]);
-    expect(result.transactions.map(({ id: _id, ...rest }) => rest)).toEqual(txs.map(({ id: _id, ...rest }) => rest));
+    const withoutId = (t: Transaction) => ({ ...t, id: "" });
+    expect(result.transactions.map(withoutId)).toEqual(txs.map(withoutId));
   });
 });
 
