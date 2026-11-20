@@ -85,12 +85,15 @@ export default function TransactionsPage() {
 
   return (
     <>
-      <div className="flex flex-wrap items-start justify-between gap-3">
-        <PageHeader title="Transactions" subtitle="Every rupee in and out." />
-        <Button onClick={() => setEditing("new")} aria-keyshortcuts="n">
-          <Plus size={16} /> Add transaction
-        </Button>
-      </div>
+      <PageHeader
+        title="Transactions"
+        subtitle="Every rupee in and out."
+        action={
+          <Button onClick={() => setEditing("new")} aria-keyshortcuts="n">
+            <Plus size={16} /> Add transaction
+          </Button>
+        }
+      />
 
       {/* Filters */}
       <Card className="mb-4 p-4">
