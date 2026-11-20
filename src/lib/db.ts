@@ -19,6 +19,4 @@ db.version(1).stores({
   goals: "id, deadline",
 });
 
-export function newId(): string {
-  return crypto.randomUUID();
-}
+export { newId } from "./id";

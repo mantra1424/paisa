@@ -1,5 +1,5 @@
 import type { Category, PaymentMethod, Transaction, TxType } from "@/types";
-import { newId } from "./db";
+import { newId } from "./id";
 
 export const CSV_HEADERS = ["date", "type", "amount", "category", "method", "note"] as const;
 
