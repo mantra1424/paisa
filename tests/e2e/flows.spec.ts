@@ -101,3 +101,28 @@ test("create a savings goal and add money to it", async ({ page }) => {
   await dialog.getByRole("button", { name: "Add money" }).last().click();
   await expect(card).toContainText("Goal reached");
 });
+
+test("currency format changes how every amount is shown", async ({ page }) => {
+  await open(page, "/transactions", "Transactions");
+  await page.getByRole("button", { name: "Add transaction" }).click();
+  const dialog = page.getByRole("dialog");
+  await dialog.getByRole("radio", { name: "income" }).check({ force: true });
+  await dialog.getByLabel("Amount (₹)").fill("150000.25");
+  await dialog.getByLabel("Note").fill("E2E big payment");
+  await dialog.getByRole("button", { name: "Add transaction" }).click();
+  await page.getByRole("searchbox").fill("E2E big payment");
+  await expect(page.getByRole("listitem").filter({ hasText: "E2E big payment" })).toContainText("₹1,50,000.25");
+
+  await page.getByRole("link", { name: "Settings" }).filter({ visible: true }).click();
+  await page.getByRole("radio", { name: /International/ }).click();
+  await page.getByRole("radio", { name: /Round/ }).click();
+
+  await page.getByRole("link", { name: "Transactions" }).filter({ visible: true }).click();
+  await page.getByRole("searchbox").fill("E2E big payment");
+  await expect(page.getByRole("listitem").filter({ hasText: "E2E big payment" })).toContainText("₹150,000");
+
+  // The choice is remembered after a reload.
+  await page.reload();
+  await page.getByRole("searchbox").fill("E2E big payment");
+  await expect(page.getByRole("listitem").filter({ hasText: "E2E big payment" })).toContainText("+₹150,000");
+});

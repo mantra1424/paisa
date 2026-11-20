@@ -6,7 +6,7 @@ import { Check, Download, Laptop, Moon, Pencil, Plus, RotateCcw, Sparkles, Sun, 
 import { db, newId } from "@/lib/db";
 import { loadDemoData, resetAllData } from "@/lib/demo-data";
 import { CATEGORY_COLORS, CSV_HEADERS, downloadFile, importTransactions, transactionsToCSV } from "@/lib/csv";
-import { toISODate } from "@/lib/format";
+import { getCurrencyPrefs, setCurrencyPrefs, toISODate, type CurrencyPrefs } from "@/lib/format";
 import { THEME_EVENT, getThemePref, setThemePref, type ThemePref } from "@/lib/theme";
 import { useCategories, useCategoryMap } from "@/hooks/use-data";
 import { PageHeader } from "@/components/page-header";
@@ -20,6 +20,7 @@ export default function SettingsPage() {
       <div className="grid gap-4 xl:grid-cols-2">
         <div className="space-y-4">
           <Appearance />
+          <CurrencyFormat />
           <DataSection />
         </div>
         <Categories />
@@ -73,6 +74,78 @@ function Appearance() {
             {o.icon} {o.label}
           </button>
         ))}
+      </div>
+    </Section>
+  );
+}
+
+/* ---------- Currency format ---------- */
+
+function Segmented<T extends string | boolean>({
+  label,
+  value,
+  options,
+  onChange,
+}: {
+  label: string;
+  value: T;
+  options: { value: T; label: string; example: string }[];
+  onChange: (v: T) => void;
+}) {
+  return (
+    <div>
+      <p id={`seg-${label}`} className="mb-1.5 text-sm font-medium">
+        {label}
+      </p>
+      <div role="radiogroup" aria-labelledby={`seg-${label}`} className="grid grid-cols-2 gap-1 rounded-lg bg-bg p-1">
+        {options.map((o) => (
+          <button
+            key={String(o.value)}
+            type="button"
+            role="radio"
+            aria-checked={value === o.value}
+            onClick={() => onChange(o.value)}
+            className={`rounded-md px-2 py-2 text-sm focus-visible:outline-2 focus-visible:outline-brand ${
+              value === o.value ? "bg-surface font-semibold text-ink shadow-sm" : "text-muted hover:text-ink"
+            }`}
+          >
+            {o.label} <span className="block text-xs font-normal tabular-nums text-muted sm:inline">{o.example}</span>
+          </button>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function CurrencyFormat() {
+  const [prefs, setPrefs] = useState<CurrencyPrefs>(getCurrencyPrefs);
+
+  function update(next: CurrencyPrefs) {
+    setPrefs(next);
+    setCurrencyPrefs(next);
+  }
+
+  return (
+    <Section title="Currency format" text="How amounts in rupees are shown across the app.">
+      <div className="space-y-4">
+        <Segmented
+          label="Digit grouping"
+          value={prefs.grouping}
+          onChange={(grouping) => update({ ...prefs, grouping })}
+          options={[
+            { value: "indian", label: "Indian", example: "₹1,25,000" },
+            { value: "international", label: "International", example: "₹125,000" },
+          ]}
+        />
+        <Segmented
+          label="Paise"
+          value={prefs.paise}
+          onChange={(paise) => update({ ...prefs, paise })}
+          options={[
+            { value: true, label: "Show", example: "₹249.50" },
+            { value: false, label: "Round", example: "₹250" },
+          ]}
+        />
       </div>
     </Section>
   );

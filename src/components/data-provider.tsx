@@ -1,17 +1,28 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { Fragment, useEffect, useState } from "react";
 import { seedIfEmpty } from "@/lib/demo-data";
+import { CURRENCY_EVENT, loadCurrencyPrefs } from "@/lib/format";
 
-/** Makes sure the database has demo data before any page reads from it. */
+/**
+ * Makes sure the database has demo data and the saved currency format is loaded
+ * before any page reads from them.
+ */
 export function DataProvider({ children }: { children: React.ReactNode }) {
   const [ready, setReady] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  // Bumped when the currency format changes; the key below redraws every amount on the page.
+  const [formatVersion, setFormatVersion] = useState(0);
 
   useEffect(() => {
+    loadCurrencyPrefs();
     seedIfEmpty()
       .then(() => setReady(true))
       .catch((e: unknown) => setError(e instanceof Error ? e.message : String(e)));
+
+    const bump = () => setFormatVersion((v) => v + 1);
+    window.addEventListener(CURRENCY_EVENT, bump);
+    return () => window.removeEventListener(CURRENCY_EVENT, bump);
   }, []);
 
   if (error) {
@@ -27,5 +38,5 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
   if (!ready) {
     return <p className="text-sm text-muted">Loading your data…</p>;
   }
-  return <>{children}</>;
+  return <Fragment key={formatVersion}>{children}</Fragment>;
 }

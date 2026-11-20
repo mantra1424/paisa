@@ -1,6 +1,6 @@
-import { describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it } from "vitest";
 import { budgetLevel, goalInfo, monthKey, monthLabel, monthsLeft, shiftMonth, spendByCategory, totals } from "@/lib/calculations";
-import { formatINR } from "@/lib/format";
+import { DEFAULT_CURRENCY, formatINR, setCurrencyPrefs } from "@/lib/format";
 import type { Goal, Transaction } from "@/types";
 
 const tx = (over: Partial<Transaction>): Transaction => ({
@@ -97,9 +97,22 @@ describe("goals", () => {
 });
 
 describe("formatINR", () => {
-  it("uses Indian digit grouping and keeps paise only when present", () => {
+  afterEach(() => setCurrencyPrefs(DEFAULT_CURRENCY, false));
+
+  it("uses Indian digit grouping and shows paise only when present", () => {
     expect(formatINR(125000)).toBe("₹1,25,000");
-    expect(formatINR(249.5)).toBe("₹249.5");
+    expect(formatINR(249.5)).toBe("₹249.50");
     expect(formatINR(0)).toBe("₹0");
+  });
+
+  it("switches to international grouping", () => {
+    setCurrencyPrefs({ grouping: "international", paise: true }, false);
+    expect(formatINR(1250000)).toBe("₹1,250,000");
+  });
+
+  it("rounds to whole rupees when paise are off", () => {
+    setCurrencyPrefs({ grouping: "indian", paise: false }, false);
+    expect(formatINR(249.5)).toBe("₹250");
+    expect(formatINR(125000.25)).toBe("₹1,25,000");
   });
 });
