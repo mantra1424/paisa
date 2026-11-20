@@ -22,8 +22,28 @@ export const EXPENSE_COLOR = "#eb6834";
 
 export function MonthlyBars({ data }: { data: { month: string; income: number; expense: number }[] }) {
   return (
-    <div className="h-64 text-muted" role="img" aria-label="Income and spending for the last six months">
-      <ResponsiveContainer width="100%" height="100%">
+    <div className="h-64 text-muted">
+      <table className="sr-only">
+        <caption>Income and spending for the last six months</caption>
+        <thead>
+          <tr>
+            <th scope="col">Month</th>
+            <th scope="col">Income</th>
+            <th scope="col">Spending</th>
+          </tr>
+        </thead>
+        <tbody>
+          {data.map((d) => (
+            <tr key={d.month}>
+              <th scope="row">{d.month}</th>
+              <td>{formatINR(d.income)}</td>
+              <td>{formatINR(d.expense)}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+      {/* The table above carries the same numbers for screen readers. */}
+      <ResponsiveContainer width="100%" height="100%" aria-hidden>
         <BarChart data={data} margin={{ top: 8, right: 4, left: -8, bottom: 0 }} barGap={2}>
           <CartesianGrid vertical={false} stroke="var(--border)" />
           <XAxis dataKey="month" tickLine={false} axisLine={false} tick={{ fill: "currentColor", fontSize: 12 }} />
@@ -41,10 +61,11 @@ export function MonthlyBars({ data }: { data: { month: string; income: number; e
 export function CategoryDonut({ data, total }: { data: { name: string; value: number; color: string }[]; total: number }) {
   return (
     <div className="flex flex-col items-center gap-4 sm:flex-row lg:flex-col 2xl:flex-row">
-      <div className="relative h-48 w-48 shrink-0" role="img" aria-label="Spending by category this month">
+      {/* The legend list next to the chart carries the same numbers for screen readers. */}
+      <div className="relative h-48 w-48 shrink-0" aria-hidden>
         <ResponsiveContainer width="100%" height="100%">
           <PieChart>
-            <Pie data={data} dataKey="value" nameKey="name" innerRadius="62%" outerRadius="100%" paddingAngle={2} stroke="none">
+            <Pie data={data} dataKey="value" nameKey="name" rootTabIndex={-1} innerRadius="62%" outerRadius="100%" paddingAngle={2} stroke="none">
               {data.map((d) => (
                 <Cell key={d.name} fill={d.color} />
               ))}
@@ -57,7 +78,7 @@ export function CategoryDonut({ data, total }: { data: { name: string; value: nu
           <span className="font-bold tabular-nums">{formatINR(total)}</span>
         </div>
       </div>
-      <ul className="w-full min-w-0 space-y-1.5 text-sm">
+      <ul className="w-full min-w-0 space-y-1.5 text-sm" aria-label={`Spending by category, ${formatINR(total)} in total`}>
         {data.map((d) => (
           <li key={d.name} className="flex items-center gap-2">
             <span className="h-2.5 w-2.5 shrink-0 rounded-full" style={{ background: d.color }} aria-hidden />

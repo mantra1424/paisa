@@ -377,7 +377,7 @@ function CategoryForm({ initial, type, existing, onDone }: { initial?: Category;
   return (
     <form onSubmit={submit} noValidate className="space-y-4">
       <Field label="Name" htmlFor="c-name" error={error}>
-        <input id="c-name" autoFocus maxLength={30} value={name} onChange={(e) => (setName(e.target.value), setError(""))} className={inputClass} />
+        <input id="c-name" data-autofocus maxLength={30} value={name} onChange={(e) => (setName(e.target.value), setError(""))} className={inputClass} />
       </Field>
       <fieldset>
         <legend className="mb-1.5 text-sm font-medium">Colour</legend>

@@ -93,7 +93,7 @@ export function TransactionForm({
             step="0.01"
             min="0"
             placeholder="0"
-            autoFocus
+            data-autofocus
             aria-invalid={!!errors.amount}
             className={inputClass}
             {...register("amount", { valueAsNumber: true })}

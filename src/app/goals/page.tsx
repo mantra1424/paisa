@@ -204,7 +204,7 @@ function GoalForm({ initial, onDone }: { initial?: Goal; onDone: () => void }) {
   return (
     <form onSubmit={submit} noValidate className="space-y-4">
       <Field label="What are you saving for?" htmlFor="g-name" error={errors.name}>
-        <input id="g-name" autoFocus maxLength={40} placeholder="e.g. New laptop" value={name} onChange={(e) => setName(e.target.value)} className={inputClass} />
+        <input id="g-name" data-autofocus maxLength={40} placeholder="e.g. New laptop" value={name} onChange={(e) => setName(e.target.value)} className={inputClass} />
       </Field>
       <div className="grid gap-4 sm:grid-cols-2">
         <Field label="Target (₹)" htmlFor="g-target" error={errors.target}>
@@ -266,7 +266,7 @@ function FundForm({ goal, onDone }: { goal: Goal; onDone: () => void }) {
           type="number"
           inputMode="numeric"
           min="1"
-          autoFocus
+          data-autofocus
           value={amount}
           onChange={(e) => (setAmount(e.target.value), setError(""))}
           aria-invalid={!!error}

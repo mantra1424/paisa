@@ -273,7 +273,7 @@ function BudgetForm({
           inputMode="numeric"
           min="1"
           step="1"
-          autoFocus
+          data-autofocus
           value={limit}
           onChange={(e) => (setLimit(e.target.value), setError(""))}
           aria-invalid={!!error}
