@@ -11,17 +11,3 @@ export function PageHeader({ title, subtitle, action }: { title: string; subtitl
     </div>
   );
 }
-
-/** Placeholder for features you build in the coming days. */
-export function ComingSoon({ day, items }: { day: string; items: string[] }) {
-  return (
-    <div className="rounded-xl border border-dashed border-border bg-surface p-6">
-      <p className="text-sm font-semibold text-brand">Planned for {day}</p>
-      <ul className="mt-3 list-inside list-disc space-y-1 text-sm text-ink-2">
-        {items.map((i) => (
-          <li key={i}>{i}</li>
-        ))}
-      </ul>
-    </div>
-  );
-}
