@@ -40,7 +40,7 @@ export function MonthlyBars({ data }: { data: { month: string; income: number; e
 
 export function CategoryDonut({ data, total }: { data: { name: string; value: number; color: string }[]; total: number }) {
   return (
-    <div className="flex flex-col items-center gap-4 sm:flex-row lg:flex-col xl:flex-row">
+    <div className="flex flex-col items-center gap-4 sm:flex-row lg:flex-col 2xl:flex-row">
       <div className="relative h-48 w-48 shrink-0" role="img" aria-label="Spending by category this month">
         <ResponsiveContainer width="100%" height="100%">
           <PieChart>
