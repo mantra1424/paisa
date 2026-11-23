@@ -225,7 +225,7 @@ function Stat({ label, value, tone = "text-ink" }: { label: string; value: strin
   return (
     <Card className="min-w-0 p-3 sm:p-4">
       <p className="truncate text-xs font-medium text-muted">{label}</p>
-      <p className={`mt-1 truncate text-base font-bold tabular-nums sm:text-xl ${tone}`}>{value}</p>
+      <p className={`mt-1 truncate font-serif text-lg font-semibold tabular-nums sm:text-2xl ${tone}`}>{value}</p>
     </Card>
   );
 }

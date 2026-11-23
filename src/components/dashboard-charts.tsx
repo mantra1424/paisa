@@ -17,12 +17,12 @@ const tooltipStyle = {
 
 const compact = (n: number) => (n >= 1000 ? `₹${Math.round(n / 100) / 10}k` : `₹${n}`);
 
-export const INCOME_COLOR = "#1baf7a";
-export const EXPENSE_COLOR = "#eb6834";
+export const INCOME_COLOR = "var(--income)";
+export const EXPENSE_COLOR = "var(--expense)";
 
-export function MonthlyBars({ data }: { data: { month: string; income: number; expense: number }[] }) {
+export function MonthlyBars({ data, className = "h-64" }: { data: { month: string; income: number; expense: number }[]; className?: string }) {
   return (
-    <div className="h-64 text-muted">
+    <div className={`relative text-muted ${className}`}>
       <table className="sr-only">
         <caption>Income and spending for the last six months</caption>
         <thead>

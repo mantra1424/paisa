@@ -32,7 +32,7 @@ export default function SettingsPage() {
 function Section({ title, text, children }: { title: string; text?: string; children: ReactNode }) {
   return (
     <Card className="p-4 md:p-5">
-      <h2 className="font-semibold">{title}</h2>
+      <h2 className="font-serif text-lg font-semibold">{title}</h2>
       {text && <p className="mt-1 text-sm text-ink-2">{text}</p>}
       <div className="mt-4">{children}</div>
     </Card>

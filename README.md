@@ -83,6 +83,10 @@ date,type,amount,category,method,note
 
 It's a static Next.js app with no server code or environment variables, so any static host works. On [Vercel](https://vercel.com): import the GitHub repo and keep the defaults. Each visitor's data still stays in their own browser.
 
+## Design
+
+The look is based on the *bahi-khata*, the red cloth account book Indian shops keep: warm paper, ink-dark text, a vermilion rupee mark and marigold for progress. Headings use the Fraunces serif, and amounts in lists use a monospace face, like a column of figures. Green always means money in and red always means a problem, so category colours avoid both. Motion is small: pages ease in, progress bars grow, and the month's savings count up. All of it switches off when the device asks for reduced motion.
+
 ## Tech
 
 - Next.js 15 (App Router) + TypeScript

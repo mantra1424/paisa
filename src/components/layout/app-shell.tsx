@@ -2,7 +2,8 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Settings, Wallet } from "lucide-react";
+import { Lock, Settings } from "lucide-react";
+import { Logo } from "./logo";
 import { MOBILE_TABS, NAV_ITEMS } from "./nav-items";
 import { ThemeToggle } from "./theme-toggle";
 
@@ -23,11 +24,8 @@ export function AppShell({ children }: { children: React.ReactNode }) {
       </a>
       {/* Desktop sidebar */}
       <aside className="sticky top-0 hidden h-dvh w-60 shrink-0 flex-col border-r border-border bg-surface p-4 md:flex">
-        <Link href="/" className="mb-8 flex items-center gap-2 px-2 text-lg font-bold">
-          <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-brand text-brand-ink">
-            <Wallet size={18} />
-          </span>
-          Paisa
+        <Link href="/" aria-label="Paisa home" className="mb-8 rounded-md px-2 focus-visible:outline-2 focus-visible:outline-brand">
+          <Logo />
         </Link>
         <nav aria-label="Main" className="flex flex-1 flex-col gap-1">
           {NAV_ITEMS.map(({ href, label, icon: Icon }) => {
@@ -37,8 +35,10 @@ export function AppShell({ children }: { children: React.ReactNode }) {
                 key={href}
                 href={href}
                 aria-current={active ? "page" : undefined}
-                className={`flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors ${
-                  active ? "bg-brand/10 text-brand" : "text-ink-2 hover:bg-bg hover:text-ink"
+                className={`relative flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm transition-colors focus-visible:outline-2 focus-visible:outline-brand ${
+                  active
+                    ? "bg-brand/10 font-semibold text-brand before:absolute before:top-2 before:bottom-2 before:-left-4 before:w-1 before:rounded-r before:bg-brand"
+                    : "font-medium text-ink-2 hover:bg-bg hover:text-ink"
                 }`}
               >
                 <Icon size={18} />
@@ -47,17 +47,20 @@ export function AppShell({ children }: { children: React.ReactNode }) {
             );
           })}
         </nav>
-        <ThemeToggle />
+        <div className="flex items-end justify-between gap-3 border-t border-border pt-4">
+          <p className="flex items-start gap-1.5 text-xs leading-snug text-muted">
+            <Lock size={12} className="mt-0.5 shrink-0" />
+            Stored only in this browser. No account, no tracking.
+          </p>
+          <ThemeToggle />
+        </div>
       </aside>
 
       <div className="flex min-w-0 flex-1 flex-col">
         {/* Mobile top bar */}
         <header className="sticky top-0 z-10 flex items-center justify-between border-b border-border bg-surface/90 px-4 py-3 backdrop-blur md:hidden">
-          <Link href="/" className="flex items-center gap-2 font-bold">
-            <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-brand text-brand-ink">
-              <Wallet size={16} />
-            </span>
-            Paisa
+          <Link href="/" aria-label="Paisa home" className="rounded-md focus-visible:outline-2 focus-visible:outline-brand">
+            <Logo size="sm" />
           </Link>
           <div className="flex items-center gap-2">
             <Link
@@ -74,7 +77,9 @@ export function AppShell({ children }: { children: React.ReactNode }) {
           </div>
         </header>
 
-        <main id="main" tabIndex={-1} className="mx-auto w-full max-w-6xl outline-none flex-1 px-4 pb-24 pt-6 md:px-8 md:pb-10 md:pt-8">{children}</main>
+        <main id="main" tabIndex={-1} className="mx-auto w-full max-w-6xl flex-1 px-4 pt-6 pb-24 outline-none md:px-8 md:pt-8 md:pb-10">
+          {children}
+        </main>
 
         {/* Mobile bottom tab bar */}
         <nav
@@ -88,7 +93,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
                 key={href}
                 href={href}
                 aria-current={active ? "page" : undefined}
-                className={`flex flex-col items-center gap-1 py-2 text-[11px] font-medium ${active ? "text-brand" : "text-muted"}`}
+                className={`flex flex-col items-center gap-1 py-2 text-[11px] ${active ? "font-semibold text-brand" : "font-medium text-muted"}`}
               >
                 <Icon size={20} />
                 {label}

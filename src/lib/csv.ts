@@ -3,7 +3,7 @@ import { newId } from "./id";
 
 export const CSV_HEADERS = ["date", "type", "amount", "category", "method", "note"] as const;
 
-export const CATEGORY_COLORS = ["#2a78d6", "#1baf7a", "#eb6834", "#eda100", "#6250d6", "#e87ba4", "#008300", "#e34948", "#0891b2", "#78716c"];
+export const CATEGORY_COLORS = ["#3c7fb0", "#2f7d55", "#d4880f", "#6d5fa8", "#8a5a3b", "#c25a85", "#2b6f8e", "#9a5aa0", "#5f7a3a", "#7a6f63"];
 
 /* ---------- Writing ---------- */
 

@@ -89,7 +89,7 @@ export default function ClientsPage() {
           <div className="grid gap-4 xl:grid-cols-3">
             <section className="min-w-0 xl:col-span-2" aria-labelledby="invoices-heading">
               <div className="mb-2 flex flex-wrap items-center justify-between gap-2">
-                <h2 id="invoices-heading" className="font-semibold">
+                <h2 id="invoices-heading" className="font-serif text-lg font-semibold">
                   Invoices
                 </h2>
                 <div role="tablist" aria-label="Filter invoices" className="flex gap-1 rounded-lg bg-surface p-1 ring-1 ring-border">
@@ -127,7 +127,7 @@ export default function ClientsPage() {
                     {rows.map(({ inv, status }) => {
                       const client = clientMap.get(inv.clientId);
                       return (
-                        <li key={inv.id} className="flex flex-wrap items-center gap-x-3 gap-y-2 px-4 py-3">
+                        <li key={inv.id} className="flex flex-wrap items-center gap-x-3 gap-y-2 px-4 py-3 transition-colors hover:bg-bg/60">
                           <div className="min-w-0 flex-1 basis-48">
                             <p className="truncate text-sm font-medium">
                               {client?.name ?? "Deleted client"} <span className="text-muted">· {inv.description}</span>
@@ -138,7 +138,7 @@ export default function ClientsPage() {
                             </p>
                           </div>
                           <span className={`shrink-0 rounded-full px-2 py-0.5 text-xs font-semibold capitalize ${STATUS_STYLE[status]}`}>{status}</span>
-                          <p className="w-24 shrink-0 text-right text-sm font-semibold tabular-nums">{formatINR(inv.amount)}</p>
+                          <p className="w-24 shrink-0 text-right font-mono text-sm font-semibold tabular-nums">{formatINR(inv.amount)}</p>
                           <div className="flex shrink-0 items-center">
                             {status === "paid" ? (
                               <Button variant="ghost" size="icon" aria-label={`Mark ${inv.number} unpaid`} title="Mark unpaid" onClick={() => setUnpaying(inv)}>
@@ -165,7 +165,7 @@ export default function ClientsPage() {
             </section>
 
             <section className="min-w-0" aria-labelledby="clients-heading">
-              <h2 id="clients-heading" className="mb-2 font-semibold">
+              <h2 id="clients-heading" className="mb-2 font-serif text-lg font-semibold">
                 Clients
               </h2>
               <Card>
@@ -282,7 +282,7 @@ function Stat({ label, value, tone = "text-ink" }: { label: string; value: strin
   return (
     <Card className="min-w-0 p-3 sm:p-4">
       <p className="truncate text-xs font-medium text-muted">{label}</p>
-      <p className={`mt-1 truncate text-base font-bold tabular-nums sm:text-xl ${tone}`}>{value}</p>
+      <p className={`mt-1 truncate font-serif text-lg font-semibold tabular-nums sm:text-2xl ${tone}`}>{value}</p>
     </Card>
   );
 }

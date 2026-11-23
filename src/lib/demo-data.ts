@@ -3,14 +3,14 @@ import { toISODate } from "./format";
 import type { Budget, Category, Client, Goal, Invoice, PaymentMethod, Transaction } from "@/types";
 
 export const DEFAULT_CATEGORIES: Category[] = [
-  { id: "salary", name: "Stipend / Salary", type: "income", color: "#1baf7a" },
-  { id: "freelance", name: "Freelance", type: "income", color: "#2a78d6" },
-  { id: "food", name: "Food & Dining", type: "expense", color: "#eb6834" },
-  { id: "transport", name: "Transport", type: "expense", color: "#eda100" },
-  { id: "rent", name: "Rent & Bills", type: "expense", color: "#6250d6" },
-  { id: "shopping", name: "Shopping", type: "expense", color: "#e87ba4" },
-  { id: "education", name: "Education", type: "expense", color: "#008300" },
-  { id: "fun", name: "Entertainment", type: "expense", color: "#e34948" },
+  { id: "salary", name: "Stipend / Salary", type: "income", color: "#2f7d55" },
+  { id: "freelance", name: "Freelance", type: "income", color: "#2b6f8e" },
+  { id: "food", name: "Food & Dining", type: "expense", color: "#d4880f" },
+  { id: "transport", name: "Transport", type: "expense", color: "#6d5fa8" },
+  { id: "rent", name: "Rent & Bills", type: "expense", color: "#8a5a3b" },
+  { id: "shopping", name: "Shopping", type: "expense", color: "#c25a85" },
+  { id: "education", name: "Education", type: "expense", color: "#3c7fb0" },
+  { id: "fun", name: "Entertainment", type: "expense", color: "#9a5aa0" },
 ];
 
 // Small deterministic random so the demo looks the same on every load.

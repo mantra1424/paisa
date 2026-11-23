@@ -106,7 +106,8 @@ test("currency format changes how every amount is shown", async ({ page }) => {
   await open(page, "/transactions", "Transactions");
   await page.getByRole("button", { name: "Add transaction" }).click();
   const dialog = page.getByRole("dialog");
-  await dialog.getByRole("radio", { name: "income" }).check({ force: true });
+  await dialog.locator("label").filter({ hasText: /^income$/ }).click();
+  await expect(dialog.getByRole("radio", { name: "income" })).toBeChecked();
   await dialog.getByLabel("Amount (₹)").fill("150000.25");
   await dialog.getByLabel("Note").fill("E2E big payment");
   await dialog.getByRole("button", { name: "Add transaction" }).click();

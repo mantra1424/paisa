@@ -3,34 +3,41 @@
 /* Dark mode follows the `dark` class on <html>, set by ThemeToggle. */
 @custom-variant dark (&:where(.dark, .dark *));
 
+/*
+ * "Bahi-khata" palette: the red cloth account book Indian shops keep.
+ * Warm paper, ink-dark text, vermilion for the brand, marigold for progress.
+ * Every text colour here meets WCAG AA (4.5:1) on --bg and --surface.
+ */
 :root {
-  --bg: #f6f6f4;
-  --surface: #ffffff;
-  --border: #e6e5e1;
-  --ink: #0b0b0b;
-  --ink-2: #52514e;
-  --muted: #66655f;
-  --brand: #1f63b8;
-  --brand-ink: #ffffff;
-  --income: #0b7350;
-  --expense: #c2410c;
-  --warn: #92400e;
-  --danger: #b91c1c;
+  --bg: #f4efe6;
+  --surface: #fbf8f2;
+  --border: #e2d8c6;
+  --ink: #1d1a16;
+  --ink-2: #4a4339;
+  --muted: #675e51;
+  --brand: #a3261c; /* vermilion */
+  --brand-ink: #fff8ee;
+  --marigold: #b97a06;
+  --income: #1f6b45;
+  --expense: #9a3f0e;
+  --warn: #8a5300;
+  --danger: #b4232a;
 }
 
 .dark {
-  --bg: #121211;
-  --surface: #1a1a19;
-  --border: #2c2c2a;
-  --ink: #f0efec;
-  --ink-2: #c3c2b7;
-  --muted: #9a9993;
-  --brand: #6aa6f2;
-  --brand-ink: #0b1220;
-  --income: #2fbf8a;
-  --expense: #f0844f;
-  --warn: #f5a524;
-  --danger: #f87171;
+  --bg: #16130f;
+  --surface: #1f1b16;
+  --border: #363027;
+  --ink: #f2ebdd;
+  --ink-2: #d2c8b6;
+  --muted: #a69c8b;
+  --brand: #f08a6c;
+  --brand-ink: #1d1a16;
+  --marigold: #f0b43c;
+  --income: #74cf9c;
+  --expense: #f2a46a;
+  --warn: #f0b43c;
+  --danger: #ff8f85;
 }
 
 @theme inline {
@@ -42,12 +49,62 @@
   --color-muted: var(--muted);
   --color-brand: var(--brand);
   --color-brand-ink: var(--brand-ink);
+  --color-marigold: var(--marigold);
   --color-income: var(--income);
   --color-expense: var(--expense);
   --color-warn: var(--warn);
   --color-danger: var(--danger);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
+  --font-serif: var(--font-fraunces);
+
+  --animate-enter: enter 0.28s cubic-bezier(0.2, 0.7, 0.2, 1) both;
+  --animate-grow: grow 0.6s cubic-bezier(0.2, 0.7, 0.2, 1) both;
+  --animate-pop: pop 0.18s cubic-bezier(0.2, 0.7, 0.2, 1) both;
+}
+
+@keyframes enter {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+}
+@keyframes grow {
+  from {
+    transform: scaleX(0);
+  }
+}
+@keyframes pop {
+  from {
+    opacity: 0;
+    transform: translateY(8px) scale(0.98);
+  }
+}
+@keyframes fade {
+  from {
+    opacity: 0;
+  }
+}
+
+/* Dialogs ease in; the backdrop fades. */
+dialog[open] {
+  animation: var(--animate-pop);
+}
+dialog[open]::backdrop {
+  animation: fade 0.18s ease-out both;
+}
+
+/* Anyone who asks their OS for less motion gets none. */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after,
+  dialog[open],
+  dialog[open]::backdrop {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
 }
 
 html {
@@ -60,4 +117,18 @@ html.dark {
 body {
   background: var(--bg);
   color: var(--ink);
+  font-feature-settings: "ss01", "cv11";
+}
+
+/* Headings use the serif; its optical size keeps big numbers crisp. */
+h1,
+.font-serif {
+  font-family: var(--font-fraunces), ui-serif, Georgia, serif;
+  font-optical-sizing: auto;
+  letter-spacing: -0.015em;
+}
+
+/* Ledger ruling: a thin double line, like the top of an account-book page. */
+.ledger-rule {
+  border-bottom: 3px double var(--border);
 }

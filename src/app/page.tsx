@@ -9,6 +9,7 @@ import { formatDate, formatINR } from "@/lib/format";
 import { budgetLevel, goalInfo, invoiceTotals, monthKey, monthLabel, shiftMonth, spendByCategory, totals } from "@/lib/calculations";
 import { useCategories, useCategoryMap, useTransactions } from "@/hooks/use-data";
 import { PageHeader } from "@/components/page-header";
+import { CountUp } from "@/components/count-up";
 import { CategoryDonut, MonthlyBars } from "@/components/dashboard-charts";
 import { TransactionForm } from "@/components/transaction-form";
 import { Button, Card, Modal, ProgressBar } from "@/components/ui";
@@ -42,12 +43,11 @@ export default function DashboardPage() {
 
   const { now, months, spend, byCategory, recent } = data;
   const rate = now.income > 0 ? Math.round((now.net / now.income) * 100) : null;
-  const cards = [
-    { label: "Income this month", value: formatINR(now.income), tone: "text-income" },
-    { label: "Spent this month", value: formatINR(now.expense), tone: "text-expense" },
-    { label: "Saved this month", value: formatINR(now.net), tone: now.net < 0 ? "text-danger" : "text-ink" },
-    { label: "Savings rate", value: rate === null ? "–" : `${rate}%`, tone: rate !== null && rate < 0 ? "text-danger" : "text-ink" },
-  ];
+  const incomeBy = new Map<string, number>();
+  for (const t of transactions) if (t.type === "income" && t.date.startsWith(month)) incomeBy.set(t.categoryId, (incomeBy.get(t.categoryId) ?? 0) + t.amount);
+  const sources = [...incomeBy.entries()].sort((a, b) => b[1] - a[1]);
+  const biggest = byCategory[0];
+  const spentPct = now.income > 0 ? Math.min(100, (now.expense / now.income) * 100) : 100;
   const budgetRows = budgets
     .map((b) => ({ b, spent: spend.get(b.categoryId) ?? 0, cat: catMap.get(b.categoryId) }))
     .sort((x, y) => y.spent / y.b.limit - x.spent / x.b.limit)
@@ -69,21 +69,61 @@ export default function DashboardPage() {
       />
 
       <div className="grid grid-cols-2 gap-3 md:gap-4 lg:grid-cols-4">
-        {cards.map((c) => (
-          <Card key={c.label} className="min-w-0 p-4">
-            <p className="truncate text-xs font-medium text-muted md:text-sm">{c.label}</p>
-            <p className={`mt-2 truncate text-xl font-bold tabular-nums md:text-2xl ${c.tone}`}>{c.value}</p>
-          </Card>
-        ))}
+        <Card className="col-span-2 min-w-0 p-5">
+          <p className="text-sm font-medium text-muted">{now.net < 0 ? "Overspent this month" : "Saved this month"}</p>
+          <p className={`mt-1 font-serif text-4xl font-semibold tabular-nums md:text-5xl ${now.net < 0 ? "text-danger" : "text-ink"}`}>
+            <CountUp value={Math.abs(now.net)} />
+          </p>
+          <p className="mt-2 text-sm text-ink-2">
+            {rate === null ? "No income recorded yet this month." : rate >= 0 ? `${rate}% of what came in, kept.` : `Spent ${-rate}% more than came in.`}
+          </p>
+          <div className="mt-4 flex h-2 overflow-hidden rounded-full bg-income/25" aria-hidden>
+            <div className="h-full origin-left animate-grow rounded-full bg-expense" style={{ width: `${spentPct}%` }} />
+          </div>
+          <div className="mt-1.5 flex justify-between text-xs text-muted">
+            <span>Spent</span>
+            <span>Kept</span>
+          </div>
+        </Card>
+        <Card className="min-w-0 p-4 md:p-5">
+          <p className="truncate text-sm font-medium text-muted">Came in</p>
+          <p className="mt-1 truncate font-serif text-2xl font-semibold text-income tabular-nums md:text-3xl">
+            <CountUp value={now.income} />
+          </p>
+          {sources.length > 0 && (
+            <ul className="mt-3 space-y-1 text-xs text-ink-2">
+              {sources.slice(0, 2).map(([id, amt]) => (
+                <li key={id} className="flex justify-between gap-2">
+                  <span className="truncate">{catMap.get(id)?.name ?? "Other"}</span>
+                  <span className="shrink-0 font-mono tabular-nums">{formatINR(amt)}</span>
+                </li>
+              ))}
+            </ul>
+          )}
+        </Card>
+        <Card className="min-w-0 p-4 md:p-5">
+          <p className="truncate text-sm font-medium text-muted">Went out</p>
+          <p className="mt-1 truncate font-serif text-2xl font-semibold text-expense tabular-nums md:text-3xl">
+            <CountUp value={now.expense} />
+          </p>
+          {biggest && (
+            <p className="mt-3 text-xs text-ink-2">
+              Biggest: <span className="font-medium text-ink">{biggest.name}</span>
+              <span className="block font-mono tabular-nums">
+                {formatINR(biggest.value)} · {Math.round((biggest.value / now.expense) * 100)}%
+              </span>
+            </p>
+          )}
+        </Card>
       </div>
 
       <div className="mt-4 grid gap-4 lg:grid-cols-5">
-        <Card className="min-w-0 p-4 lg:col-span-3">
-          <h2 className="mb-3 font-semibold">Income vs spending</h2>
-          <MonthlyBars data={months} />
+        <Card className="flex min-w-0 flex-col p-4 lg:col-span-3">
+          <h2 className="mb-3 font-serif text-lg font-semibold">Income vs spending</h2>
+          <MonthlyBars data={months} className="min-h-64 flex-1" />
         </Card>
         <Card className="min-w-0 p-4 lg:col-span-2">
-          <h2 className="mb-3 font-semibold">Where it went this month</h2>
+          <h2 className="mb-3 font-serif text-lg font-semibold">Where it went this month</h2>
           {byCategory.length > 0 ? (
             <CategoryDonut data={byCategory} total={now.expense} />
           ) : (
@@ -98,7 +138,7 @@ export default function DashboardPage() {
       <div className="mt-4 grid gap-4 lg:grid-cols-5">
         <Card className="min-w-0 lg:col-span-3">
           <div className="flex items-center justify-between px-4 pt-4 pb-2">
-            <h2 className="font-semibold">Recent transactions</h2>
+            <h2 className="font-serif text-lg font-semibold">Recent transactions</h2>
             <SeeAll href="/transactions" />
           </div>
           {recent.length === 0 ? (
@@ -108,7 +148,7 @@ export default function DashboardPage() {
               {recent.map((t) => {
                 const cat = catMap.get(t.categoryId);
                 return (
-                  <li key={t.id} className="flex items-center gap-3 px-4 py-3">
+                  <li key={t.id} className="flex items-center gap-3 px-4 py-3 transition-colors hover:bg-bg/60">
                     <span className="h-2.5 w-2.5 shrink-0 rounded-full" style={{ background: cat?.color }} aria-hidden />
                     <div className="min-w-0 flex-1">
                       <p className="truncate text-sm font-medium">{t.note || cat?.name}</p>
@@ -116,7 +156,7 @@ export default function DashboardPage() {
                         {cat?.name} · {formatDate(t.date)}
                       </p>
                     </div>
-                    <p className={`shrink-0 text-sm font-semibold tabular-nums ${t.type === "income" ? "text-income" : ""}`}>
+                    <p className={`shrink-0 font-mono text-sm font-semibold tabular-nums ${t.type === "income" ? "text-income" : ""}`}>
                       {t.type === "income" ? "+" : "−"}
                       {formatINR(t.amount)}
                     </p>
@@ -131,10 +171,10 @@ export default function DashboardPage() {
           {invoices.length > 0 && (
             <Card className="p-4">
               <div className="mb-2 flex items-center justify-between">
-                <h2 className="font-semibold">Owed to you</h2>
+                <h2 className="font-serif text-lg font-semibold">Owed to you</h2>
                 <SeeAll href="/clients" />
               </div>
-              <p className="text-2xl font-bold tabular-nums">{formatINR(owed.owed)}</p>
+              <p className="font-serif text-3xl font-semibold tabular-nums">{formatINR(owed.owed)}</p>
               <p className="mt-1 text-sm text-ink-2">
                 {unpaid} unpaid {unpaid === 1 ? "invoice" : "invoices"}
                 {owed.overdue > 0 && <span className="font-semibold text-danger"> · {formatINR(owed.overdue)} overdue</span>}
@@ -144,7 +184,7 @@ export default function DashboardPage() {
 
           <Card className="p-4">
             <div className="mb-3 flex items-center justify-between">
-              <h2 className="font-semibold">Budgets</h2>
+              <h2 className="font-serif text-lg font-semibold">Budgets</h2>
               <SeeAll href="/budgets" />
             </div>
             {budgetRows.length === 0 ? (
@@ -171,7 +211,7 @@ export default function DashboardPage() {
 
           <Card className="p-4">
             <div className="mb-3 flex items-center justify-between">
-              <h2 className="font-semibold">Savings goals</h2>
+              <h2 className="font-serif text-lg font-semibold">Savings goals</h2>
               <SeeAll href="/goals" />
             </div>
             {activeGoals.length === 0 ? (

@@ -198,7 +198,7 @@ export default function TransactionsPage() {
             {visible.map((t) => {
               const cat = catMap.get(t.categoryId);
               return (
-                <li key={t.id} className="flex items-center gap-3 px-4 py-3">
+                <li key={t.id} className="flex items-center gap-3 px-4 py-3 transition-colors hover:bg-bg/60">
                   <span className="h-2.5 w-2.5 shrink-0 rounded-full" style={{ background: cat?.color ?? "#999" }} aria-hidden />
                   <div className="min-w-0 flex-1">
                     <p className="truncate text-sm font-medium">{t.note || cat?.name || "Uncategorised"}</p>
@@ -206,7 +206,7 @@ export default function TransactionsPage() {
                       {cat?.name ?? "Uncategorised"} · {formatDate(t.date)} · {METHOD_LABELS[t.method]}
                     </p>
                   </div>
-                  <p className={`shrink-0 text-sm font-semibold tabular-nums ${t.type === "income" ? "text-income" : "text-ink"}`}>
+                  <p className={`shrink-0 font-mono text-sm font-semibold tabular-nums ${t.type === "income" ? "text-income" : "text-ink"}`}>
                     {t.type === "income" ? "+" : "−"}
                     {formatINR(t.amount)}
                   </p>
